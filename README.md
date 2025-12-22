@@ -212,6 +212,10 @@ Please:
 
 Open an issue before large changes — discussion is encouraged.
 
+If you’re new to the project, check issues labeled **good first issue** —
+they are small, well-scoped tasks ideal for first-time contributors.
+
+
 ---
 
 ## 📜 License
