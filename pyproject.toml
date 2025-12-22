@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Parse free-form human prompts into a canonical Prompt AST (structured JSON/YAML)."
 authors = [{ name = "Chvrr" }]
 readme = "README.md"
+license = { text = "MIT" }
 requires-python = ">=3.11"
 
 dependencies = [

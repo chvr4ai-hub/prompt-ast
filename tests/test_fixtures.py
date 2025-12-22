@@ -92,5 +92,19 @@ def test_fixture_domain_coverage():
         "general": ["capital", "consultant", "migration"]
     }
     
-    # Just verify we have diverse coverage
+    # Count how many fixtures match each domain
+    domain_counts = {}
+    for domain_name, keywords in domains.items():
+        count = sum(
+            1 for desc in descriptions
+            if any(keyword in desc for keyword in keywords)
+        )
+        domain_counts[domain_name] = count
+    
+    # Verify we have diverse coverage across multiple domains
+    domains_with_coverage = sum(1 for count in domain_counts.values() if count > 0)
+    assert domains_with_coverage >= 5, \
+        f"Expected coverage in at least 5 domains, got {domains_with_coverage}. Coverage: {domain_counts}"
+    
+    # Verify we have at least 20 fixtures total
     assert len(FIXTURES) >= 20, "Should have at least 20 diverse fixtures"
