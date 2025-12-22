@@ -1,0 +1,49 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ---- Virtual envs ----
+.venv/
+venv/
+ENV/
+env/
+
+# ---- Packaging / build ----
+dist/
+build/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# ---- Poetry ----
+poetry.lock
+
+# If you prefer committing poetry.lock for libraries, remove the line above.
+# For applications, it's usually committed; for reusable libraries, many avoid committing it.
+
+# ---- Test / coverage ----
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+
+# ---- Linting / type checking ----
+.ruff_cache/
+.mypy_cache/
+.pytype/
+.benchmarks/
+
+# ---- IDEs / editors ----
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+
+# ---- Logs ----
+*.log
