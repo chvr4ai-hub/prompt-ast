@@ -4,8 +4,8 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 
-from . import parse_prompt
-from .formats import serialize
+from . import Mode, parse_prompt
+from .formats import Format, serialize
 from .errors import LLMNotConfiguredError
 
 app = typer.Typer(add_completion=False)
@@ -20,9 +20,11 @@ def main():
 @app.command()
 def normalize(
     text: str = typer.Argument(..., help="Raw prompt text"),
-    mode: str = typer.Option("heuristic", help="heuristic|llm|hybrid"),
-    fmt: str = typer.Option("json", "--format", help="json|yaml"),
-    use_openai: bool = typer.Option(False, help="Use OpenAI-compatible API via env vars"),
+    mode: Mode = typer.Option("heuristic", help="heuristic|llm|hybrid"),
+    fmt: Format = typer.Option("json", "--format", help="json|yaml"),
+    use_openai: bool = typer.Option(
+        False, help="Use OpenAI-compatible API via env vars"
+    ),
 ):
     llm = None
     if mode in ("llm", "hybrid"):
@@ -34,7 +36,9 @@ def normalize(
 
     ast = parse_prompt(text, mode=mode, llm=llm)
     out = serialize(ast, fmt=fmt)  # returns str for json/yaml
-    console.print(Panel.fit(out if isinstance(out, str) else str(out), title="Prompt AST"))
+    console.print(
+        Panel.fit(out if isinstance(out, str) else str(out), title="Prompt AST")
+    )
 
 
 if __name__ == "__main__":
