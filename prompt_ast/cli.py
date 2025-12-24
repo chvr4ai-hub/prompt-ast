@@ -1,4 +1,5 @@
 from __future__ import annotations
+from sys import maxsize
 from typing import Optional
 
 import typer
@@ -42,16 +43,32 @@ def normalize(
     Provide prompt either as text argument or via --file option.
     """
 
-    if file and text:
+    if file is not None and text is not None:
         console.print(
             "[red]Error: Cannot specify both text argument and --file option[/red]"
         )
         raise typer.Exit(1)
 
     prompt_text: str
-    if file:
+    if file is not None:
+        file = file.expanduser()
+
         if not file.exists():
             console.print(f"[red]Error: File '{file}' does not exist[/red]")
+            raise typer.Exit(1)
+
+        # Verify the file is not a directory
+        if not file.is_file():
+            console.print(f"[red]Error: '{file}' is not a file[/red]")
+            raise typer.Exit(1)
+
+        # Verify the size (max 5MB)
+        file_size = file.stat().st_size
+        max_size = 5 * 1024 * 1024
+        if file_size > max_size:
+            console.print(
+                f"[red]Error: File'{file}' is too large ({file_size / 1024 / 1024:.1f}MB). Maximum size is 5MB[/red]"
+            )
             raise typer.Exit(1)
 
         try:
@@ -59,7 +76,7 @@ def normalize(
         except Exception as e:
             console.print(f"[red]Error reading file: {e}[/red]")
             raise typer.Exit(1)
-    elif text:
+    elif text is not None:
         prompt_text = text
     else:
         console.print(

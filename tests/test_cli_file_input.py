@@ -76,3 +76,52 @@ def test_normalize_file_short_flag(tmp_path):
     result = runner.invoke(app, ["normalize", "-f", str(prompt_file)])
 
     assert result.exit_code == 0
+
+
+def test_normalize_empty_string_with_file(tmp_path):
+    """Test mutual exclusion catches empty string text with file."""
+
+    prompt_file = tmp_path / "test.txt"
+    prompt_file.write_text("file content")
+
+    result = runner.invoke(app, ["normalize", "", "--file", str(prompt_file)])
+
+    assert result.exit_code == 1
+    assert "Cannot specify both" in result.stdout
+
+
+def test_normalize_file_is_directory(tmp_path):
+    """Test error when --file points to a directory."""
+
+    directory = tmp_path / "test_dir"
+    directory.mkdir()
+
+    result = runner.invoke(app, ["normalize", "--file", str(directory)])
+
+    assert result.exit_code == 1
+    assert "is not a file" in result.stdout
+
+
+def test_normalize_file_with_tilde(tmp_path, monkeypatch):
+    """Test that ~ expansion works in file paths."""
+
+    monkeypatch.setenv("HOME", str(tmp_path))
+
+    prompt_file = tmp_path / "prompt.txt"
+    prompt_file.write_text("test content")
+
+    result = runner.invoke(app, ["normalize", "--file", "~/prompt.txt"])
+
+    assert result.exit_code == 0
+
+
+def test_normalize_file_too_large(tmp_path):
+    """Test error when file exceeds 5MB size limit."""
+
+    large_file = tmp_path / "large.txt"
+    large_file.write_text("x" * (6 * 1024 * 1024))
+
+    result = runner.invoke(app, ["normalize", "--file", str(large_file)])
+
+    assert result.exit_code == 1
+    assert "too large" in result.stdout
