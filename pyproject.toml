@@ -27,6 +27,12 @@ all = [
   "httpx>=0.27,<1.0"
 ]
 
+[project.urls]
+Homepage = "https://github.com/chvr4ai-hub/prompt-ast"
+Repository = "https://github.com/chvr4ai-hub/prompt-ast"
+Issues = "https://github.com/chvr4ai-hub/prompt-ast/issues"
+
+
 [project.scripts]
 prompt-ast = "prompt_ast.cli:app"
 
