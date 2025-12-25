@@ -1,6 +1,6 @@
 [project]
 name = "prompt-ast"
-version = "0.2.1"
+version = "0.2.2"
 description = "Parse free-form human prompts into a canonical Prompt AST (structured JSON/YAML)."
 authors = [{ name = "Chvrr" }]
 readme = "README.md"
@@ -31,7 +31,7 @@ all = [
 Homepage = "https://github.com/chvr4ai-hub/prompt-ast"
 Repository = "https://github.com/chvr4ai-hub/prompt-ast"
 Issues = "https://github.com/chvr4ai-hub/prompt-ast/issues"
-Documentation = "https://github.com/chvr4ai-hub/prompt-ast/tree/main/docs"
+Documentation = "https://github.com/chvr4ai-hub/prompt-ast/tree/main/docs/index.md"
 
 
 [project.scripts]
