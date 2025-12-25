@@ -1,5 +1,4 @@
 from __future__ import annotations
-from sys import maxsize
 from typing import Optional
 
 import typer

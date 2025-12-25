@@ -19,7 +19,9 @@ class OpenAICompatClient:
         timeout: float = 30.0,
     ):
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        self.base_url = base_url or os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+        self.base_url = base_url or os.getenv(
+            "OPENAI_BASE_URL", "https://api.openai.com/v1"
+        )
         self.model = model
         self.timeout = timeout
 
