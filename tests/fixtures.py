@@ -23,20 +23,13 @@ Output: Provide a bullet-point list""",
             "constraints": [
                 "Focus on security best practices",
                 "Suggest concrete improvements",
-                "Provide a bullet-point list"
+                "Provide a bullet-point list",
             ],
             "assumptions": [],
             "ambiguities": [],
-            "output_spec": {
-                "format": None,
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "output_spec": {"format": None, "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
     {
         "description": "Architecture design with markdown headers",
@@ -58,20 +51,13 @@ Design a scalable order processing service.
             "constraints": [
                 "Must handle 10k orders/minute",
                 "Use event-driven architecture",
-                "Be concise"
+                "Be concise",
             ],
             "assumptions": [],
             "ambiguities": [],
-            "output_spec": {
-                "format": None,
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "output_spec": {"format": None, "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
     {
         "description": "Debugging request with vague task (should detect ambiguity)",
@@ -86,16 +72,9 @@ Design a scalable order processing service.
             "ambiguities": [
                 "Task is too vague - missing details about what bug, what code, what symptoms"
             ],
-            "output_spec": {
-                "format": None,
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "output_spec": {"format": None, "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
     {
         "description": "API design with role and constraints",
@@ -105,23 +84,13 @@ Design a scalable order processing service.
             "role": "senior API architect",
             "context": None,
             "task": "Design a REST API for a blog platform.",
-            "constraints": [
-                "Be detailed"
-            ],
+            "constraints": ["Be detailed"],
             "assumptions": [],
             "ambiguities": [],
-            "output_spec": {
-                "format": "json",
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "output_spec": {"format": "json", "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
-    
     # Data Analysis (3 prompts)
     {
         "description": "Data cleaning with audience specification",
@@ -131,22 +100,12 @@ Design a scalable order processing service.
             "role": None,
             "context": None,
             "task": "Explain how to clean messy CSV data for beginners.",
-            "constraints": [
-                "Use step-by-step instructions",
-                "For beginners"
-            ],
+            "constraints": ["Use step-by-step instructions", "For beginners"],
             "assumptions": [],
             "ambiguities": [],
-            "output_spec": {
-                "format": None,
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "output_spec": {"format": None, "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
     {
         "description": "Visualization request with output format",
@@ -158,19 +117,14 @@ Design a scalable order processing service.
             "task": "Create a visualization strategy for sales data.",
             "constraints": [],
             "assumptions": [],
-            "ambiguities": [
-                "Missing context about sales data structure and volume"
-            ],
+            "ambiguities": ["Missing context about sales data structure and volume"],
             "output_spec": {
                 "format": "yaml",
                 "structure": ["Data Sources", "Chart Types", "Tools"],
-                "language": None
+                "language": None,
             },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
     {
         "description": "Statistical analysis with numbered sections",
@@ -185,18 +139,10 @@ Design a scalable order processing service.
             "constraints": [],
             "assumptions": [],
             "ambiguities": [],
-            "output_spec": {
-                "format": "markdown",
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "output_spec": {"format": "markdown", "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
-    
     # Content Creation (3 prompts)
     {
         "description": "Blog writing with word limit",
@@ -206,24 +152,12 @@ Design a scalable order processing service.
             "role": None,
             "context": None,
             "task": "Write a blog post about AI ethics in 500 words.",
-            "constraints": [
-                "500 words",
-                "Professional tone"
-            ],
+            "constraints": ["500 words", "Professional tone"],
             "assumptions": [],
-            "ambiguities": [
-                "Missing target audience specification"
-            ],
-            "output_spec": {
-                "format": None,
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "ambiguities": ["Missing target audience specification"],
+            "output_spec": {"format": None, "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
     {
         "description": "Social media content with casual tone",
@@ -233,22 +167,12 @@ Design a scalable order processing service.
             "role": "social media manager",
             "context": None,
             "task": "Create 3 tweet ideas about sustainable living.",
-            "constraints": [
-                "Casual tone",
-                "Engaging"
-            ],
+            "constraints": ["Casual tone", "Engaging"],
             "assumptions": [],
             "ambiguities": [],
-            "output_spec": {
-                "format": None,
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "output_spec": {"format": None, "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
     {
         "description": "Technical documentation",
@@ -258,26 +182,15 @@ Design a scalable order processing service.
             "role": None,
             "context": None,
             "task": "Document the installation process for our CLI tool.",
-            "constraints": [
-                "Use bullet points",
-                "Include troubleshooting steps"
-            ],
+            "constraints": ["Use bullet points", "Include troubleshooting steps"],
             "assumptions": [],
             "ambiguities": [
                 "Missing context about which CLI tool and target platforms"
             ],
-            "output_spec": {
-                "format": None,
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "output_spec": {"format": None, "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
-    
     # Education (2 prompts)
     {
         "description": "Lesson planning",
@@ -287,24 +200,12 @@ Design a scalable order processing service.
             "role": "high school teacher",
             "context": None,
             "task": "create a lesson plan for teaching photosynthesis.",
-            "constraints": [
-                "Interactive",
-                "Engaging"
-            ],
+            "constraints": ["Interactive", "Engaging"],
             "assumptions": [],
-            "ambiguities": [
-                "Missing class duration and student prior knowledge level"
-            ],
-            "output_spec": {
-                "format": None,
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "ambiguities": ["Missing class duration and student prior knowledge level"],
+            "output_spec": {"format": None, "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
     {
         "description": "Concept explanation with ELI5",
@@ -314,24 +215,13 @@ Design a scalable order processing service.
             "role": None,
             "context": None,
             "task": "Explain quantum entanglement like I'm 5.",
-            "constraints": [
-                "Explain like I'm 5",
-                "Under 100 words"
-            ],
+            "constraints": ["Explain like I'm 5", "Under 100 words"],
             "assumptions": [],
             "ambiguities": [],
-            "output_spec": {
-                "format": None,
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "output_spec": {"format": None, "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
-    
     # Business (2 prompts)
     {
         "description": "Strategy with background context",
@@ -343,23 +233,12 @@ Requirements: Focus on product improvements and communication.""",
             "role": None,
             "context": "Our SaaS startup has 1000 users but low retention.",
             "task": "Develop a customer retention strategy.",
-            "constraints": [
-                "Focus on product improvements and communication."
-            ],
+            "constraints": ["Focus on product improvements and communication."],
             "assumptions": [],
-            "ambiguities": [
-                "Missing specific retention metrics and churn reasons"
-            ],
-            "output_spec": {
-                "format": None,
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "ambiguities": ["Missing specific retention metrics and churn reasons"],
+            "output_spec": {"format": None, "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
     {
         "description": "Process optimization",
@@ -371,21 +250,15 @@ Requirements: Focus on product improvements and communication.""",
             "task": "Analyze our customer onboarding process and suggest improvements.",
             "constraints": [],
             "assumptions": [],
-            "ambiguities": [
-                "Missing details about current onboarding process"
-            ],
+            "ambiguities": ["Missing details about current onboarding process"],
             "output_spec": {
                 "format": "table",
                 "structure": ["Current Step", "Issue", "Proposed Solution"],
-                "language": None
+                "language": None,
             },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
-    
     # Creative (2 prompts)
     {
         "description": "Storytelling",
@@ -395,22 +268,12 @@ Requirements: Focus on product improvements and communication.""",
             "role": None,
             "context": None,
             "task": "Write a short story about a time traveler.",
-            "constraints": [
-                "Set in Victorian London",
-                "Under 300 words"
-            ],
+            "constraints": ["Set in Victorian London", "Under 300 words"],
             "assumptions": [],
             "ambiguities": [],
-            "output_spec": {
-                "format": None,
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "output_spec": {"format": None, "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
     {
         "description": "Brainstorming",
@@ -420,24 +283,13 @@ Requirements: Focus on product improvements and communication.""",
             "role": None,
             "context": None,
             "task": "Brainstorm 10 unique product names for an eco-friendly water bottle.",
-            "constraints": [
-                "Creative",
-                "Catchy"
-            ],
+            "constraints": ["Creative", "Catchy"],
             "assumptions": [],
             "ambiguities": [],
-            "output_spec": {
-                "format": None,
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "output_spec": {"format": None, "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
-    
     # Research (2 prompts)
     {
         "description": "Literature review",
@@ -455,16 +307,9 @@ Result: Structured summary in JSON""",
             ],
             "assumptions": [],
             "ambiguities": [],
-            "output_spec": {
-                "format": "json",
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "output_spec": {"format": "json", "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
     {
         "description": "Hypothesis formation",
@@ -474,23 +319,13 @@ Result: Structured summary in JSON""",
             "role": None,
             "context": None,
             "task": "What are potential research questions about social media's impact on teen mental health?",
-            "constraints": [
-                "List 5 testable hypotheses"
-            ],
+            "constraints": ["List 5 testable hypotheses"],
             "assumptions": [],
             "ambiguities": [],
-            "output_spec": {
-                "format": None,
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "output_spec": {"format": None, "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
-    
     # General (2 prompts)
     {
         "description": "Simple Q&A",
@@ -503,16 +338,9 @@ Result: Structured summary in JSON""",
             "constraints": [],
             "assumptions": [],
             "ambiguities": [],
-            "output_spec": {
-                "format": None,
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "output_spec": {"format": None, "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
     {
         "description": "Complex multi-part request",
@@ -538,21 +366,12 @@ Output: YAML with phases and milestones""",
                 "Minimize downtime",
                 "Budget: $100k",
                 "Timeline: 6 months",
-                "No code examples needed"
+                "No code examples needed",
             ],
             "assumptions": [],
-            "ambiguities": [
-                "Missing details about monolith size and complexity"
-            ],
-            "output_spec": {
-                "format": "yaml",
-                "structure": [],
-                "language": None
-            },
-            "metadata": {
-                "extracted_by": "heuristic",
-                "confidence": 0.55
-            }
-        }
+            "ambiguities": ["Missing details about monolith size and complexity"],
+            "output_spec": {"format": "yaml", "structure": [], "language": None},
+            "metadata": {"extracted_by": "heuristic", "confidence": 0.55},
+        },
     },
 ]

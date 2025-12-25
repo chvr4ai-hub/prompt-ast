@@ -51,5 +51,7 @@ class PromptAST(BaseModel):
         try:
             import yaml  # type: ignore
         except ImportError as e:
-            raise ImportError("Install YAML support: pip install prompt-ast[yaml]") from e
+            raise ImportError(
+                "Install YAML support: pip install prompt-ast[yaml]"
+            ) from e
         return yaml.safe_dump(self.to_dict(), sort_keys=False, allow_unicode=True)

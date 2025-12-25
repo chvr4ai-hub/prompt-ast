@@ -46,7 +46,7 @@ def parse_prompt_heuristic(text: str) -> PromptAST:
         ast.output_spec.format = fmt
 
     ast.constraints.extend(_infer_constraints(lowered))
-    
+
     # Extract output structure if specified
     structure = _extract_output_structure(raw)
     if structure:
@@ -92,15 +92,15 @@ def _split_labeled_sections(text: str) -> dict[str, str]:
         "requirements": "constraints",
         "requirement": "constraints",
     }
-    
+
     # Combined pattern for all formats
     # Matches: "Context:", "## Context", "1. Context:", "Background:", etc.
     pattern = r"(?im)^(?:#+\s*|\d+\.\s*)?(context|task|constraints|output|result|background|goal|requirements?)\s*:?\s*$"
-    
+
     lines = text.split("\n")
     sections: dict[str, list[str]] = {}
     current_section: str | None = None
-    
+
     for line in lines:
         # Check if this line is a section header
         match = re.match(pattern, line.strip())
@@ -116,13 +116,13 @@ def _split_labeled_sections(text: str) -> dict[str, str]:
             stripped = line.strip()
             if stripped:  # Only add non-empty lines
                 sections[current_section].append(line)
-    
+
     # Join multi-line sections
     out: dict[str, str] = {}
     for section, lines_list in sections.items():
         if lines_list:
             out[section] = "\n".join(lines_list).strip()
-    
+
     return out
 
 
@@ -161,13 +161,15 @@ def _extract_output_structure(text: str) -> list[str]:
     - 'Output: ... with: P, Q, R'
     """
     structure = []
-    
+
     # Pattern: "with sections: A, B, C" or "sections: A, B, C"
-    sections_match = re.search(r"(?:with\s+)?sections?\s*:\s*([^.\n]+)", text, re.IGNORECASE)
+    sections_match = re.search(
+        r"(?:with\s+)?sections?\s*:\s*([^.\n]+)", text, re.IGNORECASE
+    )
     if sections_match:
         parts = sections_match.group(1).split(",")
         structure.extend([p.strip() for p in parts if p.strip()])
-    
+
     # Pattern: "with: A, B, C" or "include: A, B, C"
     with_match = re.search(r"(?:with|include)\s*:\s*([^.\n]+)", text, re.IGNORECASE)
     if with_match and not sections_match:  # Don't double-count
@@ -176,7 +178,7 @@ def _extract_output_structure(text: str) -> list[str]:
         potential = [p.strip() for p in parts if p.strip()]
         if all(len(p.split()) <= 4 and p[0].isupper() for p in potential if p):
             structure.extend(potential)
-    
+
     return structure
 
 
@@ -202,7 +204,7 @@ def _infer_constraints(lowered: str) -> list[str]:
         out.append("Be detailed")
     if "bullet" in lowered:
         out.append("Use bullet points")
-    
+
     # Audience specifications
     if "for beginners" in lowered or "beginner" in lowered:
         out.append("For beginners")
@@ -210,7 +212,7 @@ def _infer_constraints(lowered: str) -> list[str]:
         out.append("For experts")
     if "eli5" in lowered or "like i'm 5" in lowered or "like i'm five" in lowered:
         out.append("Explain like I'm 5")
-    
+
     # Tone requirements
     if "professional tone" in lowered or "professionally" in lowered:
         out.append("Professional tone")
@@ -224,16 +226,16 @@ def _infer_constraints(lowered: str) -> list[str]:
         out.append("Catchy")
     if "interactive" in lowered:
         out.append("Interactive")
-    
+
     # Word/character limits
     word_limit_match = re.search(r"(in|under|within)\s+(\d+)\s+words?", lowered)
     if word_limit_match:
         out.append(f"{word_limit_match.group(2)} words")
-    
+
     char_limit_match = re.search(r"(in|under|within)\s+(\d+)\s+characters?", lowered)
     if char_limit_match:
         out.append(f"{char_limit_match.group(2)} characters")
-    
+
     # Other common constraints
     if "no code" in lowered:
         out.append("No code examples")
@@ -241,16 +243,16 @@ def _infer_constraints(lowered: str) -> list[str]:
         out.append("Include troubleshooting steps")
     if "minimize downtime" in lowered:
         out.append("Minimize downtime")
-    
+
     # Extract budget/timeline if mentioned
     budget_match = re.search(r"budget[:\s]+\$?([\d,]+k?)", lowered)
     if budget_match:
         out.append(f"Budget: ${budget_match.group(1)}")
-    
+
     timeline_match = re.search(r"timeline[:\s]+(\d+)\s+(months?|weeks?|days?)", lowered)
     if timeline_match:
         out.append(f"Timeline: {timeline_match.group(1)} {timeline_match.group(2)}")
-    
+
     return out
 
 
@@ -272,7 +274,7 @@ def _infer_ambiguities(text: str, ast: PromptAST) -> list[str]:
     """
     ambiguities = []
     lowered = text.lower()
-    
+
     # Vague task detection
     vague_patterns = [
         r"\bhelp me\b",
@@ -280,36 +282,55 @@ def _infer_ambiguities(text: str, ast: PromptAST) -> list[str]:
         r"\bdo something\b",
         r"\bwork on this\b",
     ]
-    
+
     if ast.task:
         task_lower = ast.task.lower()
         for pattern in vague_patterns:
             if re.search(pattern, task_lower):
-                ambiguities.append("Task is too vague - missing details about what bug, what code, what symptoms")
+                ambiguities.append(
+                    "Task is too vague - missing details about what bug, what code, what symptoms"
+                )
                 break
-    
+
     # Missing context for technical terms
-    technical_indicators = ["api", "database", "system", "architecture", "code", "algorithm"]
+    technical_indicators = [
+        "api",
+        "database",
+        "system",
+        "architecture",
+        "code",
+        "algorithm",
+    ]
     has_technical_terms = any(term in lowered for term in technical_indicators)
-    
+
     if has_technical_terms and not ast.context:
         # Check if it's a simple question (those don't need context)
-        if not (ast.task and ast.task.strip().endswith("?") and len(ast.task.split()) < 10):
-            ambiguities.append("Missing context about the technical system being discussed")
-    
+        if not (
+            ast.task and ast.task.strip().endswith("?") and len(ast.task.split()) < 10
+        ):
+            ambiguities.append(
+                "Missing context about the technical system being discussed"
+            )
+
     # Missing scope/boundaries when task exists but no constraints
     if ast.task and len(ast.constraints) == 0 and len(text.split()) > 15:
         # Only flag if it's a complex request
-        if any(word in lowered for word in ["design", "create", "develop", "build", "implement", "analyze"]):
+        if any(
+            word in lowered
+            for word in ["design", "create", "develop", "build", "implement", "analyze"]
+        ):
             pass  # These often imply structured output, check for that instead
-    
+
     # Missing output format when structured output is implied
     structured_indicators = ["list", "summarize", "compare", "analyze", "report"]
-    if any(ind in lowered for ind in structured_indicators) and not ast.output_spec.format:
+    if (
+        any(ind in lowered for ind in structured_indicators)
+        and not ast.output_spec.format
+    ):
         # Check if structure is mentioned in output_spec
         if not ast.output_spec.structure:
             pass  # Don't flag this as it's often clear from context
-    
+
     # Unclear references (pronouns without antecedents)
     unclear_refs = [r"\bthis\b", r"\bthat\b", r"\bit\b"]
     # Only flag if these appear early in the text without prior context
@@ -319,40 +340,57 @@ def _infer_ambiguities(text: str, ast: PromptAST) -> list[str]:
             # Check if it's part of a common phrase like "this is"
             if not re.search(r"\bthis is\b|\bthat is\b|\bit is\b", first_sentence):
                 pass  # Don't flag common constructions
-    
+
     # Missing details for specific domains
     if "onboarding" in lowered and not ast.context:
         ambiguities.append("Missing details about current onboarding process")
-    
+
     if "retention" in lowered and "strategy" in lowered:
         if not any(word in lowered for word in ["metric", "rate", "churn", "reason"]):
             ambiguities.append("Missing specific retention metrics and churn reasons")
-    
+
     if "migration" in lowered or "monolith" in lowered:
-        if not any(word in lowered for word in ["size", "users", "traffic", "complexity"]):
+        if not any(
+            word in lowered for word in ["size", "users", "traffic", "complexity"]
+        ):
             ambiguities.append("Missing details about monolith size and complexity")
-    
+
     # Missing target audience for content creation
     content_types = ["blog", "article", "post", "content", "write"]
     if any(ct in lowered for ct in content_types):
-        if not any(aud in lowered for aud in ["beginner", "expert", "audience", "reader", "for"]):
+        if not any(
+            aud in lowered
+            for aud in ["beginner", "expert", "audience", "reader", "for"]
+        ):
             if "explain" not in lowered:  # "explain" often implies audience
                 ambiguities.append("Missing target audience specification")
-    
+
     # Missing context about data
-    if "data" in lowered and any(word in lowered for word in ["analyze", "clean", "visualize"]):
+    if "data" in lowered and any(
+        word in lowered for word in ["analyze", "clean", "visualize"]
+    ):
         if not ast.context:
-            if not any(detail in lowered for detail in ["csv", "records", "dataset", "customers"]):
+            if not any(
+                detail in lowered
+                for detail in ["csv", "records", "dataset", "customers"]
+            ):
                 ambiguities.append("Missing context about data structure and volume")
-    
+
     # Missing class/lesson details for education
     if "lesson" in lowered or "teach" in lowered:
-        if not any(detail in lowered for detail in ["duration", "minutes", "hour", "grade", "age"]):
-            ambiguities.append("Missing class duration and student prior knowledge level")
-    
+        if not any(
+            detail in lowered
+            for detail in ["duration", "minutes", "hour", "grade", "age"]
+        ):
+            ambiguities.append(
+                "Missing class duration and student prior knowledge level"
+            )
+
     # Missing CLI/tool details for documentation
     if "cli" in lowered and "tool" in lowered:
         if not ast.context:
-            ambiguities.append("Missing context about which CLI tool and target platforms")
-    
+            ambiguities.append(
+                "Missing context about which CLI tool and target platforms"
+            )
+
     return ambiguities
