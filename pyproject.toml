@@ -1,6 +1,6 @@
 [project]
 name = "prompt-ast"
-version = "0.2.2"
+version = "0.2.3"
 description = "Parse free-form human prompts into a canonical Prompt AST (structured JSON/YAML)."
 authors = [{ name = "Chvrr" }]
 readme = "README.md"
