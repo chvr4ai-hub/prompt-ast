@@ -114,7 +114,17 @@ print(ast.to_json())
 
 ---
 
-## 🖥 CLI Usage
+## � Documentation
+
+For more detailed documentation, see the [docs](./docs/) folder:
+
+- **[Concepts](./docs/concepts.md)** — Core concepts and terminology
+- **[CLI Usage](./docs/cli.md)** — Command-line interface reference
+- **[Examples](./docs/examples.md)** — Real-world usage examples
+
+---
+
+## �🖥 CLI Usage
 
 ```bash
 prompt-ast normalize \
