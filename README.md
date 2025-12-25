@@ -1,4 +1,4 @@
-# 📦 `prompt-ast`
+# 📦 `prompt-ast` [![PyPI Downloads](https://static.pepy.tech/personalized-badge/prompt-ast?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/prompt-ast)
 
 > **Parse human prompts into a canonical, structured Prompt AST.**
 
