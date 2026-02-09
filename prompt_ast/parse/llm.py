@@ -43,7 +43,9 @@ def parse_prompt_llm(text: str, llm: LLMClient) -> PromptAST:
     obj["metadata"].setdefault("extracted_by", "llm")
 
     try:
-        return PromptAST.model_validate(obj)
+        if hasattr(PromptAST, "model_validate"):
+            return PromptAST.model_validate(obj)
+        return PromptAST.parse_obj(obj)
     except Exception as e:
         raise ParseError(f"LLM output failed schema validation: {e}") from e
 
