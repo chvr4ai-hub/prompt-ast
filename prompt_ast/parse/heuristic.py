@@ -7,7 +7,7 @@ from ..ast import PromptAST
 ROLE_PATTERNS = [
     r"\bact as (an? )?(?P<role>[^.\n]+)",
     r"\byou are (an? )?(?P<role>[^.\n]+)",
-    r"\bas a(n)? (?P<role>[^,\n.]+)",
+    r"(?:(?:^|[.\n])\s*)as a(n)? (?P<role>[^,\n.]+)",
 ]
 
 
@@ -36,7 +36,7 @@ def parse_prompt_heuristic(text: str) -> PromptAST:
     # Output section -> usually constraints + output format hints
     if sections.get("output") or sections.get("result"):
         out_text = (sections.get("output") or sections.get("result") or "").strip()
-        if out_text:
+        if out_text and not _contains_format_hint(out_text):
             ast.constraints.extend(_lines_to_items(out_text))
 
     # 3) infer output format + constraints from common phrases
@@ -45,7 +45,7 @@ def parse_prompt_heuristic(text: str) -> PromptAST:
     if fmt:
         ast.output_spec.format = fmt
 
-    ast.constraints.extend(_infer_constraints(lowered))
+    ast.constraints.extend(_infer_constraints(raw))
 
     # Extract output structure if specified
     structure = _extract_output_structure(raw)
@@ -67,9 +67,8 @@ def parse_prompt_heuristic(text: str) -> PromptAST:
 
 
 def _infer_role(text: str) -> str | None:
-    lowered = text.lower()
     for pat in ROLE_PATTERNS:
-        m = re.search(pat, lowered, flags=re.IGNORECASE)
+        m = re.search(pat, text, flags=re.IGNORECASE)
         if m and m.groupdict().get("role"):
             role = m.group("role").strip().rstrip(".")
             # Keep original casing roughly by slicing from original text if possible
@@ -93,9 +92,9 @@ def _split_labeled_sections(text: str) -> dict[str, str]:
         "requirement": "constraints",
     }
 
-    # Combined pattern for all formats
-    # Matches: "Context:", "## Context", "1. Context:", "Background:", etc.
-    pattern = r"(?im)^(?:#+\s*|\d+\.\s*)?(context|task|constraints|output|result|background|goal|requirements?)\s*:?\s*$"
+    # Combined pattern for all formats with optional inline content.
+    # Matches: "Context:", "Context: ...", "## Context", "1. Context:", "Background:", etc.
+    pattern = r"(?im)^(?:#+\s*|\d+\.\s*)?(context|task|constraints|output|result|background|goal|requirements?)\s*:?\s*(.*)$"
 
     lines = text.split("\n")
     sections: dict[str, list[str]] = {}
@@ -108,9 +107,15 @@ def _split_labeled_sections(text: str) -> dict[str, str]:
             section_name = match.group(1).lower()
             # Apply alias mapping
             section_name = aliases.get(section_name, section_name)
+
+            # Start new section, preserving inline content if present
             current_section = section_name
             if current_section not in sections:
                 sections[current_section] = []
+
+            inline = match.group(2).strip()
+            if inline:
+                sections[current_section].append(inline)
         elif current_section:
             # Add content to current section
             stripped = line.strip()
@@ -131,14 +136,19 @@ def _infer_task(text: str) -> str | None:
     MVP task inference:
     - first meaningful line that is not only persona-setting
     """
-    for line in text.splitlines():
-        striped = line.strip()
+    sentences = re.split(r"(?<=[.!?])\s+", text.strip())
+    for sentence in sentences:
+        striped = sentence.strip()
         if not striped:
             continue
         lower = striped.lower()
         if "act as" in lower or "you are" in lower:
             continue
-        return striped.rstrip(".")
+        if re.match(r"(?i)^as an?\s+", striped):
+            stripped = re.sub(r"(?i)^as an?\s+[^,]+,\s*", "", striped)
+            if stripped:
+                return stripped
+        return striped
     return None
 
 
@@ -183,77 +193,121 @@ def _extract_output_structure(text: str) -> list[str]:
 
 
 def _infer_output_format(lowered: str) -> str | None:
-    if "json" in lowered:
+    if re.search(r"\bjson\b", lowered):
         return "json"
-    if "yaml" in lowered:
+    if re.search(r"\byaml\b", lowered):
         return "yaml"
-    if "markdown" in lowered:
+    if re.search(r"\bmarkdown\b", lowered):
         return "markdown"
-    if "table" in lowered:
+    if re.search(r"\btable\b", lowered):
         return "table"
     return None
 
 
-def _infer_constraints(lowered: str) -> list[str]:
-    out = []
-    if "step-by-step" in lowered or "step by step" in lowered:
-        out.append("Provide step-by-step output")
-    if "concise" in lowered or "brief" in lowered:
-        out.append("Be concise")
-    if "detailed" in lowered:
-        out.append("Be detailed")
-    if "bullet" in lowered:
-        out.append("Use bullet points")
+def _contains_format_hint(text: str) -> bool:
+    lowered = text.lower()
+    return any(fmt in lowered for fmt in ["json", "yaml", "markdown", "table", "text"])
+
+
+def _infer_constraints(text: str) -> list[str]:
+    lowered = text.lower()
+    matches: list[tuple[int, str]] = []
+
+    def add(pos: int | None, value: str) -> None:
+        if pos is not None and pos >= 0:
+            matches.append((pos, value))
+
+    def find_first(substrings: list[str]) -> int | None:
+        positions = [lowered.find(s) for s in substrings if lowered.find(s) != -1]
+        return min(positions) if positions else None
+
+    # Step-by-step
+    m = re.search(r"step[-\s]by[-\s]step", lowered)
+    add(m.start() if m else None, "Use step-by-step instructions")
+
+    # Concision/detail
+    add(find_first(["concise", "brief"]), "Be concise")
+    add(lowered.find("detailed") if "detailed" in lowered else None, "Be detailed")
+
+    # Bullets (only when explicitly requested)
+    m = re.search(r"\buse\s+bullet", lowered)
+    add(m.start() if m else None, "Use bullet points")
 
     # Audience specifications
-    if "for beginners" in lowered or "beginner" in lowered:
-        out.append("For beginners")
-    if "for experts" in lowered or "expert" in lowered:
-        out.append("For experts")
-    if "eli5" in lowered or "like i'm 5" in lowered or "like i'm five" in lowered:
-        out.append("Explain like I'm 5")
+    add(find_first(["for beginners", "beginner"]), "For beginners")
+    add(find_first(["for experts", "expert"]), "For experts")
+    add(find_first(["eli5", "like i'm 5", "like i'm five"]), "Explain like I'm 5")
 
     # Tone requirements
-    if "professional tone" in lowered or "professionally" in lowered:
-        out.append("Professional tone")
-    if "casual" in lowered and "tone" in lowered:
-        out.append("Casual tone")
-    if "engaging" in lowered:
-        out.append("Engaging")
-    if "creative" in lowered:
-        out.append("Creative")
-    if "catchy" in lowered:
-        out.append("Catchy")
-    if "interactive" in lowered:
-        out.append("Interactive")
+    add(find_first(["professional tone", "professionally"]), "Professional tone")
+    add(lowered.find("casual") if "casual" in lowered else None, "Casual tone")
+    add(lowered.find("engaging") if "engaging" in lowered else None, "Engaging")
+    add(lowered.find("creative") if "creative" in lowered else None, "Creative")
+    add(lowered.find("catchy") if "catchy" in lowered else None, "Catchy")
+    add(lowered.find("interactive") if "interactive" in lowered else None, "Interactive")
+
+    # Contextual constraints (e.g., "Set in ...")
+    m = re.search(r"\bset in ([^.\n]+)", text, re.IGNORECASE)
+    if m:
+        add(m.start(), f"Set in {m.group(1).strip().rstrip('.')}")
+
+    # Output quantity directives like "List 5 ..."
+    m = re.search(r"(?:^|[.!?]\s+)(List\s+\d+\s+[^.\n]+)", text, re.IGNORECASE)
+    if m:
+        add(m.start(1), m.group(1).strip().rstrip("."))
 
     # Word/character limits
     word_limit_match = re.search(r"(in|under|within)\s+(\d+)\s+words?", lowered)
     if word_limit_match:
-        out.append(f"{word_limit_match.group(2)} words")
+        qualifier = word_limit_match.group(1)
+        number = word_limit_match.group(2)
+        constraint = (
+            f"Under {number} words"
+            if qualifier in ("under", "within")
+            else f"{number} words"
+        )
+        add(word_limit_match.start(), constraint)
 
-    char_limit_match = re.search(r"(in|under|within)\s+(\d+)\s+characters?", lowered)
+    char_limit_match = re.search(
+        r"(in|under|within)\s+(\d+)\s+characters?", lowered
+    )
     if char_limit_match:
-        out.append(f"{char_limit_match.group(2)} characters")
+        qualifier = char_limit_match.group(1)
+        number = char_limit_match.group(2)
+        constraint = (
+            f"Under {number} characters"
+            if qualifier in ("under", "within")
+            else f"{number} characters"
+        )
+        add(char_limit_match.start(), constraint)
 
     # Other common constraints
-    if "no code" in lowered:
-        out.append("No code examples")
+    if "no code examples needed" not in lowered:
+        add(lowered.find("no code") if "no code" in lowered else None, "No code examples")
     if "include" in lowered and "troubleshooting" in lowered:
-        out.append("Include troubleshooting steps")
-    if "minimize downtime" in lowered:
-        out.append("Minimize downtime")
+        add(lowered.find("troubleshooting"), "Include troubleshooting steps")
+    add(
+        lowered.find("minimize downtime") if "minimize downtime" in lowered else None,
+        "Minimize downtime",
+    )
 
     # Extract budget/timeline if mentioned
     budget_match = re.search(r"budget[:\s]+\$?([\d,]+k?)", lowered)
     if budget_match:
-        out.append(f"Budget: ${budget_match.group(1)}")
+        add(budget_match.start(), f"Budget: ${budget_match.group(1)}")
 
     timeline_match = re.search(r"timeline[:\s]+(\d+)\s+(months?|weeks?|days?)", lowered)
     if timeline_match:
-        out.append(f"Timeline: {timeline_match.group(1)} {timeline_match.group(2)}")
+        add(
+            timeline_match.start(),
+            f"Timeline: {timeline_match.group(1)} {timeline_match.group(2)}",
+        )
 
-    return out
+    matches.sort(key=lambda x: x[0])
+    ordered = [value for _, value in matches]
+    audience = [v for v in ordered if v in ("For beginners", "For experts")]
+    ordered = [v for v in ordered if v not in ("For beginners", "For experts")]
+    return ordered + audience
 
 
 def _dedupe(items: list[str]) -> list[str]:
@@ -292,26 +346,6 @@ def _infer_ambiguities(text: str, ast: PromptAST) -> list[str]:
                 )
                 break
 
-    # Missing context for technical terms
-    technical_indicators = [
-        "api",
-        "database",
-        "system",
-        "architecture",
-        "code",
-        "algorithm",
-    ]
-    has_technical_terms = any(term in lowered for term in technical_indicators)
-
-    if has_technical_terms and not ast.context:
-        # Check if it's a simple question (those don't need context)
-        if not (
-            ast.task and ast.task.strip().endswith("?") and len(ast.task.split()) < 10
-        ):
-            ambiguities.append(
-                "Missing context about the technical system being discussed"
-            )
-
     # Missing scope/boundaries when task exists but no constraints
     if ast.task and len(ast.constraints) == 0 and len(text.split()) > 15:
         # Only flag if it's a complex request
@@ -346,7 +380,7 @@ def _infer_ambiguities(text: str, ast: PromptAST) -> list[str]:
         ambiguities.append("Missing details about current onboarding process")
 
     if "retention" in lowered and "strategy" in lowered:
-        if not any(word in lowered for word in ["metric", "rate", "churn", "reason"]):
+        if not re.search(r"\b(metric|rate|churn|reason)\b", lowered):
             ambiguities.append("Missing specific retention metrics and churn reasons")
 
     if "migration" in lowered or "monolith" in lowered:
@@ -356,7 +390,7 @@ def _infer_ambiguities(text: str, ast: PromptAST) -> list[str]:
             ambiguities.append("Missing details about monolith size and complexity")
 
     # Missing target audience for content creation
-    content_types = ["blog", "article", "post", "content", "write"]
+    content_types = ["blog", "article", "post", "content"]
     if any(ct in lowered for ct in content_types):
         if not any(
             aud in lowered
@@ -367,14 +401,24 @@ def _infer_ambiguities(text: str, ast: PromptAST) -> list[str]:
 
     # Missing context about data
     if "data" in lowered and any(
-        word in lowered for word in ["analyze", "clean", "visualize"]
+        word in lowered
+        for word in ["analyze", "clean", "visualize", "visualization", "visualisation"]
     ):
         if not ast.context:
             if not any(
                 detail in lowered
                 for detail in ["csv", "records", "dataset", "customers"]
             ):
-                ambiguities.append("Missing context about data structure and volume")
+                qualifier_match = re.search(r"\b([a-z]+)\s+data\b", lowered)
+                qualifier = qualifier_match.group(1) if qualifier_match else None
+                if qualifier:
+                    ambiguities.append(
+                        f"Missing context about {qualifier} data structure and volume"
+                    )
+                else:
+                    ambiguities.append(
+                        "Missing context about data structure and volume"
+                    )
 
     # Missing class/lesson details for education
     if "lesson" in lowered or "teach" in lowered:

@@ -42,10 +42,14 @@ class PromptAST(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        return self.model_dump(mode="python")
+        if hasattr(self, "model_dump"):
+            return self.model_dump(mode="python")
+        return self.dict()
 
     def to_json(self, **kwargs: Any) -> str:
-        return self.model_dump_json(indent=2, **kwargs)
+        if hasattr(self, "model_dump_json"):
+            return self.model_dump_json(indent=2, **kwargs)
+        return self.json(indent=2, **kwargs)
 
     def to_yaml(self) -> str:
         try:
