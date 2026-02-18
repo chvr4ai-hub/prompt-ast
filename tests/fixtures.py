@@ -1,6 +1,12 @@
 """
 Comprehensive test fixtures for heuristic parser.
 Contains 20 real-world prompts across multiple domains with golden expected outputs.
+
+Each fixture contains:
+- description: human-readable test intent
+- domain: stable category used by coverage assertions
+- prompt: input prompt text
+- expected_ast: golden output from the heuristic parser
 """
 
 from __future__ import annotations
@@ -9,6 +15,7 @@ FIXTURES = [
     # Software Engineering (4 prompts)
     {
         "description": "Code review request with explicit sections",
+        "domain": "software",
         "prompt": """Context: We have a Python API endpoint that handles user authentication.
 Task: Review the security implications of storing passwords in plain text.
 Constraints:
@@ -33,6 +40,7 @@ Output: Provide a bullet-point list""",
     },
     {
         "description": "Architecture design with markdown headers",
+        "domain": "software",
         "prompt": """## Context
 We're building a microservices architecture for an e-commerce platform.
 
@@ -61,6 +69,7 @@ Design a scalable order processing service.
     },
     {
         "description": "Debugging request with vague task (should detect ambiguity)",
+        "domain": "software",
         "prompt": "Help me fix this bug.",
         "expected_ast": {
             "version": "0.1",
@@ -78,6 +87,7 @@ Design a scalable order processing service.
     },
     {
         "description": "API design with role and constraints",
+        "domain": "software",
         "prompt": "Act as a senior API architect. Design a REST API for a blog platform. Use JSON. Be detailed.",
         "expected_ast": {
             "version": "0.1",
@@ -94,6 +104,7 @@ Design a scalable order processing service.
     # Data Analysis (3 prompts)
     {
         "description": "Data cleaning with audience specification",
+        "domain": "data",
         "prompt": "Explain how to clean messy CSV data for beginners. Use step-by-step instructions.",
         "expected_ast": {
             "version": "0.1",
@@ -109,6 +120,7 @@ Design a scalable order processing service.
     },
     {
         "description": "Visualization request with output format",
+        "domain": "data",
         "prompt": "Create a visualization strategy for sales data. Output as YAML with sections: Data Sources, Chart Types, Tools.",
         "expected_ast": {
             "version": "0.1",
@@ -128,6 +140,7 @@ Design a scalable order processing service.
     },
     {
         "description": "Statistical analysis with numbered sections",
+        "domain": "data",
         "prompt": """1. Context: Dataset with 10k customer records
 2. Task: Perform correlation analysis between age and purchase frequency
 3. Output: Statistical report in markdown""",
@@ -146,6 +159,7 @@ Design a scalable order processing service.
     # Content Creation (3 prompts)
     {
         "description": "Blog writing with word limit",
+        "domain": "content",
         "prompt": "Write a blog post about AI ethics in 500 words. Use a professional tone.",
         "expected_ast": {
             "version": "0.1",
@@ -161,6 +175,7 @@ Design a scalable order processing service.
     },
     {
         "description": "Social media content with casual tone",
+        "domain": "content",
         "prompt": "You are a social media manager. Create 3 tweet ideas about sustainable living. Be casual and engaging.",
         "expected_ast": {
             "version": "0.1",
@@ -176,6 +191,7 @@ Design a scalable order processing service.
     },
     {
         "description": "Technical documentation",
+        "domain": "content",
         "prompt": "Document the installation process for our CLI tool. Use bullet points. Include troubleshooting steps.",
         "expected_ast": {
             "version": "0.1",
@@ -194,6 +210,7 @@ Design a scalable order processing service.
     # Education (2 prompts)
     {
         "description": "Lesson planning",
+        "domain": "education",
         "prompt": "As a high school teacher, create a lesson plan for teaching photosynthesis. Make it interactive and engaging.",
         "expected_ast": {
             "version": "0.1",
@@ -209,6 +226,7 @@ Design a scalable order processing service.
     },
     {
         "description": "Concept explanation with ELI5",
+        "domain": "education",
         "prompt": "Explain quantum entanglement like I'm 5. Keep it under 100 words.",
         "expected_ast": {
             "version": "0.1",
@@ -225,6 +243,7 @@ Design a scalable order processing service.
     # Business (2 prompts)
     {
         "description": "Strategy with background context",
+        "domain": "business",
         "prompt": """Background: Our SaaS startup has 1000 users but low retention.
 Goal: Develop a customer retention strategy.
 Requirements: Focus on product improvements and communication.""",
@@ -242,6 +261,7 @@ Requirements: Focus on product improvements and communication.""",
     },
     {
         "description": "Process optimization",
+        "domain": "business",
         "prompt": "Analyze our customer onboarding process and suggest improvements. Output as a table with: Current Step, Issue, Proposed Solution.",
         "expected_ast": {
             "version": "0.1",
@@ -262,6 +282,7 @@ Requirements: Focus on product improvements and communication.""",
     # Creative (2 prompts)
     {
         "description": "Storytelling",
+        "domain": "creative",
         "prompt": "Write a short story about a time traveler. Set in Victorian London. Keep it under 300 words.",
         "expected_ast": {
             "version": "0.1",
@@ -277,6 +298,7 @@ Requirements: Focus on product improvements and communication.""",
     },
     {
         "description": "Brainstorming",
+        "domain": "creative",
         "prompt": "Brainstorm 10 unique product names for an eco-friendly water bottle. Be creative and catchy.",
         "expected_ast": {
             "version": "0.1",
@@ -293,6 +315,7 @@ Requirements: Focus on product improvements and communication.""",
     # Research (2 prompts)
     {
         "description": "Literature review",
+        "domain": "research",
         "prompt": """Context: Researching machine learning in healthcare
 Task: Summarize recent papers on ML for disease diagnosis
 Constraints: Focus on 2023-2024 publications, include methodology overview
@@ -313,6 +336,7 @@ Result: Structured summary in JSON""",
     },
     {
         "description": "Hypothesis formation",
+        "domain": "research",
         "prompt": "What are potential research questions about social media's impact on teen mental health? List 5 testable hypotheses.",
         "expected_ast": {
             "version": "0.1",
@@ -329,6 +353,7 @@ Result: Structured summary in JSON""",
     # General (2 prompts)
     {
         "description": "Simple Q&A",
+        "domain": "general",
         "prompt": "What is the capital of France?",
         "expected_ast": {
             "version": "0.1",
@@ -344,6 +369,7 @@ Result: Structured summary in JSON""",
     },
     {
         "description": "Complex multi-part request",
+        "domain": "general",
         "prompt": """Act as a technical consultant.
 
 Context: Client has a legacy monolith written in Java 8.
