@@ -4,6 +4,8 @@ Golden snapshot tests for heuristic parser using fixtures.
 
 from __future__ import annotations
 
+from collections import Counter
+
 import pytest
 from prompt_ast.parse.heuristic import parse_prompt_heuristic
 from .fixtures import FIXTURES
@@ -81,39 +83,26 @@ def test_heuristic_golden_snapshots(fixture):
 
 
 def test_fixture_count():
-    """Ensure we have exactly 20 fixtures as specified."""
-    assert len(FIXTURES) == 20, f"Expected 20 fixtures, got {len(FIXTURES)}"
+    """Ensure we have at least 20 fixtures as specified."""
+    assert len(FIXTURES) >= 20, f"Expected at least 20 fixtures, got {len(FIXTURES)}"
 
 
 def test_fixture_domain_coverage():
-    """Ensure fixtures cover all specified domains."""
-    descriptions = [f["description"].lower() for f in FIXTURES]
-
-    # Count fixtures by domain (approximate based on description)
-    domains = {
-        "software": ["code", "api", "debug", "architect"],
-        "data": ["data", "visualization", "statistical", "analysis"],
-        "content": ["blog", "social media", "tweet", "documentation"],
-        "education": ["lesson", "teacher", "explain", "eli5"],
-        "business": ["retention", "strategy", "onboarding", "customer"],
-        "creative": ["story", "brainstorm", "creative"],
-        "research": ["research", "literature", "hypothesis", "papers"],
-        "general": ["capital", "consultant", "migration"],
+    """Ensure fixtures cover all supported domains via explicit fixture metadata."""
+    required_domains = {
+        "software",
+        "data",
+        "content",
+        "education",
+        "business",
+        "creative",
+        "research",
+        "general",
     }
+    domain_counts = Counter(fixture["domain"] for fixture in FIXTURES)
 
-    # Count how many fixtures match each domain
-    domain_counts = {}
-    for domain_name, keywords in domains.items():
-        count = sum(
-            1 for desc in descriptions if any(keyword in desc for keyword in keywords)
-        )
-        domain_counts[domain_name] = count
+    missing_domains = required_domains - set(domain_counts)
+    assert not missing_domains, f"Missing fixture domains: {sorted(missing_domains)}"
 
-    # Verify we have diverse coverage across multiple domains
-    domains_with_coverage = sum(1 for count in domain_counts.values() if count > 0)
-    assert (
-        domains_with_coverage >= 5
-    ), f"Expected coverage in at least 5 domains, got {domains_with_coverage}. Coverage: {domain_counts}"
-
-    # Verify we have at least 20 fixtures total
-    assert len(FIXTURES) >= 20, "Should have at least 20 diverse fixtures"
+    unexpected_domains = set(domain_counts) - required_domains
+    assert not unexpected_domains, f"Unexpected fixture domains: {sorted(unexpected_domains)}"

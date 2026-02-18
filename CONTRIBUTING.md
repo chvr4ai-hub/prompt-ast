@@ -44,6 +44,26 @@ poetry install
 poetry run pytest
 ```
 
+### Add heuristic fixtures
+
+Heuristic golden fixtures live in `tests/fixtures.py` and snapshot validation is in
+`tests/test_fixtures.py`.
+
+When adding or updating fixtures:
+
+* Keep each fixture shape consistent: `description`, `domain`, `prompt`, `expected_ast`
+* Use one of the supported domain values:
+  `software`, `data`, `content`, `education`, `business`, `creative`, `research`, `general`
+* Regenerate `expected_ast` from actual parser behavior (or update parser + fixture together)
+* Run fixture-focused tests before opening a PR:
+
+```bash
+poetry run pytest tests/test_fixtures.py
+```
+
+If heuristic behavior changes intentionally, update fixtures in the same PR so snapshots
+document the new behavior.
+
 ### Run linting
 
 ```bash
